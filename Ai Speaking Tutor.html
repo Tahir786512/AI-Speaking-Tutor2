@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Speaking Tutor</title>
+  <style>
+    body {
+      background: linear-gradient(to bottom, #87cefa, #f0f8ff);
+      font-family: 'Poppins', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      color: #333;
+    }
+    h1 {
+      font-size: 2.5rem;
+      color: #005f73;
+      text-shadow: 1px 1px #ffffff;
+    }
+    #response {
+      margin-top: 20px;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      min-height: 100px;
+      width: 80%;
+      max-width: 400px;
+      text-align: center;
+      font-size: 1rem;
+      color: #333;
+      line-height: 1.5;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 30px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      background-color: #023e8a;
+      color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background-color: #0077b6;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3);
+    }
+    footer {
+      margin-top: 20px;
+      font-size: 0.8rem;
+      color: #666;
+    }
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2rem;
+      }
+      button {
+        width: 80%;
+        padding: 10px;
+        font-size: 14px;
+      }
+      #response {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>AI Speaking Tutor 🎙️</h1>
+<div id="response">Press the button and speak!</div>
+<button onclick="startListening()">🎤 Start Speaking</button>
+<footer>Developed with ♥ to improve your speaking skills.</footer>
+
+<script>
+  const responses = {
+    greetings: [
+      "Hey there! Ready for some speaking fun?",
+      "Hi! I hope you're having a wonderful day.",
+      "Good afternoon! Let's practice."
+    ],
+    howAreYou: [
+      "I’m feeling awesome today! How about you?",
+      "All good here! How are things with you?"
+    ],
+    introduction: [
+      "That’s a beautiful name!",
+      "Nice meeting you. What are your hobbies?"
+    ],
+    thankYou: [
+      "Anytime! I'm here to help you.",
+      "It’s my pleasure!"
+    ],
+    sorry: [
+      "No problem! Let’s move on.",
+      "Mistakes are part of learning!"
+    ],
+    help: [
+      "Talk about your favorite food or movie!",
+      "Describe your room. What’s in it?"
+    ],
+    dayTalk: [
+      "Sounds like you had an amazing day!",
+      "That must have been exciting!"
+    ],
+    hobbies: [
+      "That’s a wonderful hobby!",
+      "Tell me why you enjoy it."
+    ],
+    feelings: [
+      "I’m glad you're feeling good!",
+      "I’m here to listen anytime."
+    ],
+    dreams: [
+      "That’s an amazing goal!",
+      "Believe in yourself, and success will follow."
+    ],
+    unknown: [
+      "That's interesting! Please continue.",
+      "Wow, tell me more about that!"
+    ],
+    motivation: [
+      "You’re improving with every word!",
+      "Confidence comes with practice. You’re doing it!"
+    ],
+    challenges: [
+      "Can you describe your favorite season in three sentences?",
+      "Tell me about your best friend."
+    ]
+  };
+
+  function pickRandom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  function getResponse(text) {
+    text = text.toLowerCase();
+    if (text.includes("hello") || text.includes("hi") || text.includes("good morning") || text.includes("good afternoon")) {
+      return pickRandom(responses.greetings);
+    } else if (text.includes("how are you")) {
+      return pickRandom(responses.howAreYou);
+    } else if (text.includes("my name is") || text.includes("i am")) {
+      return pickRandom(responses.introduction);
+    } else if (text.includes("thank")) {
+      return pickRandom(responses.thankYou);
+    } else if (text.includes("sorry") || text.includes("excuse me")) {
+      return pickRandom(responses.sorry);
+    } else if (text.includes("help") || text.includes("teach")) {
+      return pickRandom(responses.help);
+    } else if (text.includes("today") || text.includes("i went") || text.includes("i did")) {
+      return pickRandom(responses.dayTalk);
+    } else if (text.includes("i like") || text.includes("i love")) {
+      return pickRandom(responses.hobbies);
+    } else if (text.includes("i feel") || text.includes("i am happy") || text.includes("i am sad")) {
+      return pickRandom(responses.feelings);
+    } else if (text.includes("i want to") || text.includes("my dream")) {
+      return pickRandom(responses.dreams);
+    } else {
+      return pickRandom([...responses.unknown, ...responses.motivation, ...responses.challenges]);
+    }
+  }
+
+  function speak(text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    speechSynthesis.speak(utterance);
+  }
+
+  function startListening() {
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'en-US';
+    recognition.start();
+
+    recognition.onresult = function(event) {
+      const userSpeech = event.results[0][0].transcript;
+      const reply = getResponse(userSpeech);
+      document.getElementById('response').innerText = reply;
+      speak(reply);
+    };
+
+    recognition.onerror = function(event) {
+      document.getElementById('response').innerText = 'Error: ' + event.error;
+    };
+  }
+</script>
+
+</body>
+</html>
